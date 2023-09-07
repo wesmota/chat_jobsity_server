@@ -1,0 +1,4 @@
+DROP DATABASE IF EXISTS jobsity;
+DROP DATABASE IF EXISTS jobsity_test;
+CREATE DATABASE jobsity;
+CREATE DATABASE jobsity_test;

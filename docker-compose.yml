@@ -1,0 +1,20 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:11.10
+    volumes:
+      - ./docker-pg-init:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+    command: postgres -c intervalstyle=iso_8601 -c max_connections=250
+    expose: 
+      - "5432"
+    networks:
+      - cicd
+
+networks:
+  cicd:
+    name: cicd
