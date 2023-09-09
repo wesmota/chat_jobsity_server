@@ -2,7 +2,9 @@ DBNAME          = jobsity
 TEST_DBNAME     = jobsity_test
 LOCAL_DB_ENV    = DB_NAME=${DBNAME} DB_PORT=$${DB_PORT:-5432} DB_HOST=localhost DB_USER=$${PGUSER:-root} DB_PASSWORD=$${PGPASSWORD:-password}
 GO_BUILD        = env GOOS=linux GOARCH=amd64 go build -ldflags="-s -w"
-
+JWT_TTL		 	= 60
+JWT_SECRET	 	= secret
+JWT_ISSUER	 	= jobsity
 
 db-create:
 	PGPASSWORD=password psql -h localhost -U root -f db/setup/local/create.sql

@@ -30,7 +30,7 @@ func (h *Handler) ServeWS(w http.ResponseWriter, r *http.Request) {
 		Hub:        hub,
 		ChatUser: chatwebsocket.ChatUser{
 			ID:    1,
-			Email: "teste@gmail.com",
+			Email: "wesmota@gmail.com",
 		},
 	}
 

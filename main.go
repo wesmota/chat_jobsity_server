@@ -23,7 +23,8 @@ func main() {
 	sb.HandleFunc("/rooms", h.ListChatRooms).Methods("GET")
 	sb.HandleFunc("/rooms", h.CreateChatRoom).Methods("POST")
 	sb.HandleFunc("/rooms/{room_id}/messages", h.CreateChatMessage).Methods("POST")
-	sb.HandleFunc("/users", h.CreateUser).Methods("POST")
+	sb.HandleFunc("/api/auth/signup", h.SignUp).Methods("POST")
+	sb.HandleFunc("/api/auth/login", h.Login).Methods("POST")
 	// Start api server
 	port := os.Getenv("PORT")
 	if port == "" {

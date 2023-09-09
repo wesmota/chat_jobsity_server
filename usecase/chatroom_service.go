@@ -1,4 +1,4 @@
-package chatrooms
+package usecase
 
 import (
 	"context"
@@ -11,7 +11,7 @@ type ChatRoomService struct {
 	repo storage.ChatRoomRepo
 }
 
-func New(repo storage.ChatRoomRepo) *ChatRoomService {
+func NewChatService(repo storage.ChatRoomRepo) *ChatRoomService {
 	return &ChatRoomService{
 		repo: repo,
 	}

@@ -13,6 +13,7 @@ import (
 	"github.com/wesmota/go-jobsity-chat-server/handlers/presenter"
 	"github.com/wesmota/go-jobsity-chat-server/logger"
 	"github.com/wesmota/go-jobsity-chat-server/models"
+	"github.com/wesmota/go-jobsity-chat-server/storage/authorization"
 	chatrooms "github.com/wesmota/go-jobsity-chat-server/storage/chat_rooms"
 	usecase "github.com/wesmota/go-jobsity-chat-server/usecase"
 )
@@ -24,6 +25,7 @@ var (
 // Handler represents an HTTP request Handler.
 type Handler struct {
 	ChatRoomService *usecase.ChatRoomService
+	AuthService     *usecase.AuthService
 }
 
 func NewDefaultHandler(ctx context.Context) *Handler {
@@ -36,9 +38,17 @@ func NewDefaultHandler(ctx context.Context) *Handler {
 	if err != nil {
 		log.Err(err).Msg("DB Connection error, initial format")
 	}
-	chatRoomService := usecase.New(chatsRepo)
+	chatRoomService := usecase.NewChatService(chatsRepo)
+
+	authRepo, err := authorization.NewAuthorizationsRepo(database, log)
+	if err != nil {
+		log.Err(err).Msg("DB Connection error, initial format")
+	}
+	authService := usecase.NewAuthService(authRepo)
+
 	return &Handler{
 		ChatRoomService: chatRoomService,
+		AuthService:     authService,
 	}
 }
 

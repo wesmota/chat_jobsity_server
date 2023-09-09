@@ -26,3 +26,7 @@ type ChatMessage struct {
 type ChatRoomMessagesResponse struct {
 	Chats []ChatMessage `json:"Chats"`
 }
+type LoginResponse struct {
+	User     models.User `json:"User"`
+	JwtToken string      `json:"Token"`
+}
