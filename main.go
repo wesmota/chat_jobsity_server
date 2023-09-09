@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog"
 	"github.com/wesmota/go-jobsity-chat-server/handlers"
+	"github.com/wesmota/go-jobsity-chat-server/handlers/middlewares"
 	"github.com/wesmota/go-jobsity-chat-server/logger"
 )
 
@@ -19,12 +20,16 @@ func main() {
 	// Setup app routes
 	r := mux.NewRouter()
 	sb := r.PathPrefix("/v1").Subrouter()
-	sb.HandleFunc("/ws", h.ServeWS)
-	sb.HandleFunc("/rooms", h.ListChatRooms).Methods("GET")
-	sb.HandleFunc("/rooms", h.CreateChatRoom).Methods("POST")
-	sb.HandleFunc("/rooms/{room_id}/messages", h.CreateChatMessage).Methods("POST")
 	sb.HandleFunc("/api/auth/signup", h.SignUp).Methods("POST")
 	sb.HandleFunc("/api/auth/login", h.Login).Methods("POST")
+	sb.HandleFunc("/ws", h.ServeWS)
+
+	sbChat := r.PathPrefix("/v1/api/chat").Subrouter()
+	sbChat.Use(middlewares.Authenticate)
+	sbChat.HandleFunc("/rooms", h.ListChatRooms).Methods("GET")
+	sbChat.HandleFunc("/rooms", h.CreateChatRoom).Methods("POST")
+	sbChat.HandleFunc("/rooms/{room_id}/messages", h.CreateChatMessage).Methods("POST")
+
 	// Start api server
 	port := os.Getenv("PORT")
 	if port == "" {
