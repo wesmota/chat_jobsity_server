@@ -1,10 +1,10 @@
-package models
+package stmodels
 
 import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	UserName string `json:"UserName,omitempty"`
-	Email    string `json:"Email,omitempty"`
-	Password string `json:"Password,omitempty"`
+	UserName string `gorm:"column:username"`
+	Email    string
+	Password string
 }

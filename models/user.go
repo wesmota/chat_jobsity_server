@@ -1,7 +1,7 @@
 package models
 
 type User struct {
-	UserName string
-	Email    string
-	Password string
+	UserName string `json:"username,omitempty"`
+	Email    string `json:"email,omitempty"`
+	Password string `json:"password,omitempty"`
 }

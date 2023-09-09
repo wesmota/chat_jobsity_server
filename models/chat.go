@@ -10,12 +10,12 @@ type Chat struct {
 
 type ChatMessage struct {
 	Type         int    `json:"type"`
-	ChatMessage  string `json:"chatMessage"`
-	ChatUser     string `json:"chatUser"`
-	ChatRoomId   uint   `json:"chatRoomId"`
-	ChatRoomName string `json:"chatRoomName"`
+	ChatMessage  string `json:"chatmessage"`
+	ChatUser     string `json:"chatuser"`
+	ChatRoomId   uint   `json:"chatroomId"`
+	ChatRoomName string `json:"chatroomname"`
 }
 
 type ChatRoomMessagesResponse struct {
-	Chats []ChatMessage `json:"Chats"`
+	Chats []ChatMessage `json:"chats"`
 }

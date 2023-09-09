@@ -1,3 +1,4 @@
 
 INSERT INTO CHAT_ROOMS (NAME) VALUES ('General');
 INSERT INTO CHAT_ROOMS (NAME) VALUES ('Random');
+INSERT INTO USERS(USERNAME, EMAIL, PASSWORD) VALUES ('admin', 'wesmota@gmail.com', 'admin');

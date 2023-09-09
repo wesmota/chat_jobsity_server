@@ -12,6 +12,7 @@ import (
 	"github.com/wesmota/go-jobsity-chat-server/db"
 	"github.com/wesmota/go-jobsity-chat-server/handlers/presenter"
 	"github.com/wesmota/go-jobsity-chat-server/logger"
+	"github.com/wesmota/go-jobsity-chat-server/models"
 	chatrooms "github.com/wesmota/go-jobsity-chat-server/storage/chat_rooms"
 	usecase "github.com/wesmota/go-jobsity-chat-server/usecase"
 )
@@ -64,16 +65,14 @@ func (h *Handler) ListChatRooms(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	rooms, err := h.ChatRoomService.ListChatRooms(context.Background())
-	log.Info().Interface("rooms", rooms).Msg("ListChatRooms")
 	if err != nil {
-		//ErrResponse(err, w)
+		ErrResponse(err, w)
 		return
 	}
-	// transform rooms to json
 	_, err = json.Marshal(rooms)
 	if err != nil {
 		log.Info().Msgf("Error marshaling rooms: %v", err)
-		//ErrResponse(err, w)
+		ErrResponse(err, w)
 		return
 	}
 	json.NewEncoder(w).Encode(rooms)
@@ -82,18 +81,64 @@ func (h *Handler) ListChatRooms(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) CreateChatRoom(w http.ResponseWriter, r *http.Request) {
-	rooms, err := h.ChatRoomService.ListChatRooms(context.Background())
-	if err != nil {
-		ErrResponse(err, w)
-		return
-	}
-	data, err := json.Marshal(rooms)
-	if err != nil {
-		ErrResponse(err, w)
-		return
-	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+	var chatRoom models.ChatRoom
+	err := json.NewDecoder(r.Body).Decode(&chatRoom)
+	if err != nil {
+		log.Info().Msgf("Error decoding chat room: %v", err)
+		ErrResponse(ErrInRequestMarshaling, w)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = h.ChatRoomService.CreateChatRoom(context.Background(), chatRoom)
+	if err != nil {
+		ErrResponse(err, w)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	log.Info().Msg("CreateChatRoom handler concluded")
+	w.WriteHeader(http.StatusCreated)
+	return
+
+}
+
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.Info().Msgf("Error decoding: %v", err)
+		ErrResponse(ErrInRequestMarshaling, w)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = h.ChatRoomService.CreateUser(context.Background(), user)
+	if err != nil {
+		ErrResponse(err, w)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	return
+}
+
+func (h *Handler) CreateChatMessage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var chatMessage models.ChatMessage
+	err := json.NewDecoder(r.Body).Decode(&chatMessage)
+	if err != nil {
+		log.Info().Msgf("Error decoding chat room: %v", err)
+		ErrResponse(ErrInRequestMarshaling, w)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	// get chat user
+	err = h.ChatRoomService.CreateChatMessage(context.Background(), chatMessage)
+	if err != nil {
+		ErrResponse(err, w)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusCreated)
 	return
 }
