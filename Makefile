@@ -5,6 +5,12 @@ GO_BUILD        = env GOOS=linux GOARCH=amd64 go build -ldflags="-s -w"
 JWT_TTL		 	= 60
 JWT_SECRET	 	= secret
 JWT_ISSUER	 	= jobsity
+RMQ_HOST = localhost
+RMQ_USERNAME = guest
+RMQ_PASSWORD = guest
+RMQ_PORT = 5672
+LOCAL_RMQ_ENV = RMQ_HOST=${RMQ_HOST} RMQ_USERNAME=${RMQ_USERNAME} RMQ_PASSWORD=${RMQ_PASSWORD} RMQ_PORT=${RMQ_PORT}
+
 
 db-create:
 	PGPASSWORD=password psql -h localhost -U root -f db/setup/local/create.sql
@@ -30,5 +36,5 @@ db-migrate:
 	goose postgres "user=root password=password dbname=${DBNAME} sslmode=disable" up
 	pg_dump postgres://root:password@localhost:5432/${DBNAME} --schema-only --no-owner --file db/schema.sql
 run: db-reset
-	go run main.go
+	export ${LOCAL_RMQ_ENV} && go run main.go
 

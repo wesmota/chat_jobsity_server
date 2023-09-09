@@ -2,6 +2,7 @@ package chatrooms
 
 import (
 	"context"
+	"errors"
 
 	"github.com/rs/zerolog/log"
 	"github.com/wesmota/go-jobsity-chat-server/models"
@@ -54,8 +55,8 @@ func (r *Repo) CreateUser(ctx context.Context, user models.User) error {
 func (r *Repo) CreateChatMessage(ctx context.Context, message models.ChatMessage) error {
 	// form models to stmodels
 	user, err := r.GetUserByEmail(ctx, message.ChatUser)
-	if err != nil {
-		return err
+	if err != nil || user.ID == 0 {
+		return errors.New("user not found")
 	}
 	stMessage := stmodels.Chat{
 		Message:    message.ChatMessage,

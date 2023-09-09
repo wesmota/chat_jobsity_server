@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+
 	"github.com/rs/zerolog"
 	"github.com/wesmota/go-jobsity-chat-server/handlers"
 	"github.com/wesmota/go-jobsity-chat-server/handlers/middlewares"
@@ -17,8 +18,10 @@ func main() {
 	log := logger.NewZerologLogger(zerolog.New(os.Stdout))
 	ctx := context.Background()
 	h := handlers.NewDefaultHandler(ctx)
+
 	// Setup app routes
 	r := mux.NewRouter()
+	r.Use(middlewares.Logger)
 	sb := r.PathPrefix("/v1").Subrouter()
 	sb.HandleFunc("/api/auth/signup", h.SignUp).Methods("POST")
 	sb.HandleFunc("/api/auth/login", h.Login).Methods("POST")

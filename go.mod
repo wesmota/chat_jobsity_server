@@ -6,6 +6,7 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
+	github.com/rabbitmq/amqp091-go v1.8.1
 	github.com/rs/zerolog v1.30.0
 	golang.org/x/crypto v0.8.0
 	gorm.io/gorm v1.25.4

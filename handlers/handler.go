@@ -7,12 +7,14 @@ import (
 	"net/http"
 	"os"
 
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/wesmota/go-jobsity-chat-server/db"
 	"github.com/wesmota/go-jobsity-chat-server/handlers/presenter"
 	"github.com/wesmota/go-jobsity-chat-server/logger"
 	"github.com/wesmota/go-jobsity-chat-server/models"
+	"github.com/wesmota/go-jobsity-chat-server/rabbitmq"
 	"github.com/wesmota/go-jobsity-chat-server/storage/authorization"
 	chatrooms "github.com/wesmota/go-jobsity-chat-server/storage/chat_rooms"
 	usecase "github.com/wesmota/go-jobsity-chat-server/usecase"
@@ -26,6 +28,7 @@ var (
 type Handler struct {
 	ChatRoomService *usecase.ChatRoomService
 	AuthService     *usecase.AuthService
+	Broker          *rabbitmq.Broker
 }
 
 func NewDefaultHandler(ctx context.Context) *Handler {
@@ -46,9 +49,28 @@ func NewDefaultHandler(ctx context.Context) *Handler {
 	}
 	authService := usecase.NewAuthService(authRepo)
 
+	// RabbitMQ
+	rmqHost := os.Getenv("RMQ_HOST")
+	rmqUserName := os.Getenv("RMQ_USERNAME")
+	rmqPassword := os.Getenv("RMQ_PASSWORD")
+	rmqPort := os.Getenv("RMQ_PORT")
+	dsn := "amqp://" + rmqUserName + ":" + rmqPassword + "@" + rmqHost + ":" + rmqPort + "/"
+
+	conn, err := amqp.Dial(dsn)
+	if err != nil {
+		panic(err)
+	}
+	ch, err := conn.Channel()
+	if err != nil {
+		panic(err)
+	}
+	br := &rabbitmq.Broker{}
+	br.Setup(ch)
+
 	return &Handler{
 		ChatRoomService: chatRoomService,
 		AuthService:     authService,
+		Broker:          br,
 	}
 }
 
