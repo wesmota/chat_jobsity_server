@@ -29,7 +29,6 @@ func (r *Repo) ListChatRooms(ctx context.Context) ([]models.ChatRoom, error) {
 }
 
 func (r *Repo) CreateChatRoom(ctx context.Context, chatRoom models.ChatRoom) error {
-	// form models to stmodels
 	stChatRoom := stmodels.ChatRoom{
 		Name: chatRoom.Name,
 	}
@@ -43,7 +42,6 @@ func (r *Repo) GetUserByEmail(ctx context.Context, email string) (stmodels.User,
 }
 
 func (r *Repo) CreateUser(ctx context.Context, user models.User) error {
-	// form models to stmodels
 	stUser := stmodels.User{
 		UserName: user.UserName,
 		Email:    user.Email,
@@ -53,7 +51,6 @@ func (r *Repo) CreateUser(ctx context.Context, user models.User) error {
 }
 
 func (r *Repo) CreateChatMessage(ctx context.Context, message models.ChatMessage) error {
-	// form models to stmodels
 	user, err := r.GetUserByEmail(ctx, message.ChatUser)
 	if err != nil || user.ID == 0 {
 		return errors.New("user not found")

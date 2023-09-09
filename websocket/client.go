@@ -3,6 +3,7 @@ package websocket
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
@@ -50,8 +51,14 @@ func (c *Client) Read(msgChan chan []byte) {
 		chatMsg.Type = messageType
 		c.Hub.Broadcast <- chatMsg
 		log.Info().Interface("chatMsg", chatMsg).Msg("Read")
-		msgChan <- p
-		go c.ChatRoomService.CreateChatMessage(context.Background(), chatMsg)
+
+		if strings.Index(chatMsg.ChatMessage, "/stock=") == 0 {
+			log.Info().Msg("Stock command detected")
+			msgChan <- p
+		} else {
+			msgChan <- p
+			go c.ChatRoomService.CreateChatMessage(context.Background(), chatMsg)
+		}
 
 	}
 }
