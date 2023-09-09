@@ -1,5 +1,8 @@
 DBNAME          = jobsity
 TEST_DBNAME     = jobsity_test
+LOCAL_DB_ENV    = DB_NAME=${DBNAME} DB_PORT=$${DB_PORT:-5432} DB_HOST=localhost DB_USER=$${PGUSER:-root} DB_PASSWORD=$${PGPASSWORD:-password}
+GO_BUILD        = env GOOS=linux GOARCH=amd64 go build -ldflags="-s -w"
+
 
 db-create:
 	PGPASSWORD=password psql -h localhost -U root -f db/setup/local/create.sql
@@ -24,3 +27,6 @@ goose-status:
 db-migrate:
 	goose postgres "user=root password=password dbname=${DBNAME} sslmode=disable" up
 	pg_dump postgres://root:password@localhost:5432/${DBNAME} --schema-only --no-owner --file db/schema.sql
+run: db-reset
+	go run main.go
+

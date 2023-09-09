@@ -20,6 +20,7 @@ func main() {
 	r := mux.NewRouter()
 	sb := r.PathPrefix("/v1").Subrouter()
 	sb.HandleFunc("/ws", h.ServeWS)
+	sb.HandleFunc("/rooms", h.ListChatRooms).Methods("GET")
 	// Start api server
 	port := os.Getenv("PORT")
 	if port == "" {

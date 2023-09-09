@@ -3,7 +3,11 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
+
+	// Postgres driver for initializing database connection
+	_ "github.com/lib/pq"
 )
 
 const (
@@ -11,6 +15,8 @@ const (
 	localDBUser     = "root"
 	localDBPassword = "password"
 	localDBHost     = "localhost"
+	localPort       = "5432"
+	localDBName     = "jobsity"
 )
 
 // NewDB returns an initialized database handle
@@ -35,14 +41,24 @@ func initDB(host string) (*sql.DB, error) {
 		dbPassword = localDBPassword
 	}
 
+	dbPort := os.Getenv("DB_PORT")
+	if dbPort == "" {
+		dbPort = localPort
+	}
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = localDBName
+	}
+
 	dbConnectionStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host,
-		os.Getenv("DB_PORT"),
+		dbPort,
 		dbUser,
 		dbPassword,
-		os.Getenv("DB_NAME"),
+		dbName,
 	)
+	log.Println("Connecting to database with connection string: ", dbConnectionStr)
 
 	return sql.Open("postgres", dbConnectionStr)
 }

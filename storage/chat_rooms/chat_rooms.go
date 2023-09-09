@@ -3,6 +3,7 @@ package chatrooms
 import (
 	"context"
 
+	"github.com/rs/zerolog/log"
 	"github.com/wesmota/go-jobsity-chat-server/models"
 	stmodels "github.com/wesmota/go-jobsity-chat-server/storage/models"
 )
@@ -10,7 +11,11 @@ import (
 func (r *Repo) ListChatRooms(ctx context.Context) ([]models.ChatRoom, error) {
 	var chatRooms []stmodels.ChatRoom
 	var modelChatRooms []models.ChatRoom
-	err := r.DB().WithContext(ctx).Order("id DESC").Find(&chatRooms).Error
+	err := r.DB().Debug().WithContext(ctx).Order("id DESC").Find(&chatRooms).Error
+	if err != nil {
+		log.Info().Msgf("Error listing chat rooms: %v", err)
+		return nil, err
+	}
 	// transform to models
 	for i := range chatRooms {
 		modelChatRooms = append(modelChatRooms, models.ChatRoom{
@@ -18,7 +23,8 @@ func (r *Repo) ListChatRooms(ctx context.Context) ([]models.ChatRoom, error) {
 			Name: chatRooms[i].Name,
 		})
 	}
-	return modelChatRooms, err
+	log.Info().Interface("chatRooms", chatRooms).Interface("modelChatRooms", modelChatRooms).Msg("ListChatRooms")
+	return modelChatRooms, nil
 }
 
 func (r *Repo) CreateChatRoom(ctx context.Context, chatRoom models.ChatRoom) error {
@@ -26,5 +32,5 @@ func (r *Repo) CreateChatRoom(ctx context.Context, chatRoom models.ChatRoom) err
 	stChatRoom := stmodels.ChatRoom{
 		Name: chatRoom.Name,
 	}
-	return r.DB().WithContext(ctx).Create(&stChatRoom).Error
+	return r.DB().Debug().WithContext(ctx).Create(&stChatRoom).Error
 }
