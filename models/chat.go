@@ -9,6 +9,7 @@ type Chat struct {
 }
 
 type ChatMessage struct {
+	Type         int    `json:"type"`
 	ChatMessage  string `json:"chatMessage"`
 	ChatUser     string `json:"chatUser"`
 	ChatRoomId   uint   `json:"chatRoomId"`

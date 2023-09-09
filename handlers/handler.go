@@ -1,4 +1,4 @@
-package rest
+package handlers
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/wesmota/go-jobsity-chat-server/db"
-	"github.com/wesmota/go-jobsity-chat-server/http/rest/presenter"
+	"github.com/wesmota/go-jobsity-chat-server/handlers/presenter"
 	"github.com/wesmota/go-jobsity-chat-server/logger"
 	chatrooms "github.com/wesmota/go-jobsity-chat-server/storage/chat_rooms"
 	usecase "github.com/wesmota/go-jobsity-chat-server/usecase"

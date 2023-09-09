@@ -1,45 +1,54 @@
 package websocket
 
+import (
+	"log"
+
+	"github.com/wesmota/go-jobsity-chat-server/models"
+)
+
 type Hub struct {
 	// Registered clients.
-	clients map[*Client]bool
+	Clients map[*Client]bool
 
 	// Inbound messages from the clients.
-	broadcast chan []byte
+	Broadcast chan models.ChatMessage
 
 	// Register requests from the clients.
-	register chan *Client
+	Register chan *Client
 
 	// Unregister requests from clients.
-	unregister chan *Client
+	Unregister chan *Client
 }
 
-func newHub() *Hub {
+func NewHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		Broadcast:  make(chan models.ChatMessage),
+		Register:   make(chan *Client),
+		Unregister: make(chan *Client),
+		Clients:    make(map[*Client]bool),
 	}
 }
 
-func (h *Hub) run() {
+func (h *Hub) Run() {
 	for {
 		select {
-		case client := <-h.register:
-			h.clients[client] = true
-		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
-				close(client.send)
+
+		case client := <-h.Register:
+			h.Clients[client] = true
+			log.Println("info:", "Client registered: ", client.ChatUser.Email)
+
+		case client := <-h.Unregister:
+			if _, ok := h.Clients[client]; ok {
+				delete(h.Clients, client)
+				log.Println("info:", "Client unregistered: ", client.ChatUser.Email)
 			}
-		case message := <-h.broadcast:
-			for client := range h.clients {
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.clients, client)
+
+		case msg := <-h.Broadcast:
+			for c := range h.Clients {
+				err := c.Connection.WriteJSON(msg)
+				log.Println("info:", "Broadcasting message: ", msg)
+				if err != nil {
+					panic(err)
 				}
 			}
 		}
