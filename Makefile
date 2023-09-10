@@ -12,10 +12,9 @@ RMQ_PORT = 5672
 LOCAL_RMQ_ENV = RMQ_HOST=${RMQ_HOST} RMQ_USERNAME=${RMQ_USERNAME} RMQ_PASSWORD=${RMQ_PASSWORD} RMQ_PORT=${RMQ_PORT}
 LOCAL_JWT = JWT_TTL=${JWT_TTL} JWT_SECRET=${JWT_SECRET} JWT_ISSUER=${JWT_ISSUER}
 
-
 db-create:
 	PGPASSWORD=password psql -h localhost -U root -f db/setup/local/create.sql
-
+	
 db-run:
 	docker-compose up -d
 	until pg_isready -h localhost; do sleep 1; done
@@ -39,5 +38,7 @@ db-migrate:
 run: db-reset
 	export ${LOCAL_RMQ_ENV} && \
 	export ${LOCAL_JWT} && \
+	go mod tidy && \
+	go mod download && \
 	go run main.go
 

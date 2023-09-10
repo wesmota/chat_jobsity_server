@@ -1,6 +1,6 @@
 # JOBSITY CHAT SERVER
-This repo contains 
-
+This repository houses a chat server that employs websockets and RabbitMQ for message communication. 
+All data is persisted in a PostgreSQL database.
 
 ### Dependencies
 This repo is powered by RabbitMQ and PostgreSQL.
@@ -23,9 +23,19 @@ bash
 | /v1/chat/rooms                        | POST         | `name`                         | Creates a new chat room with the name provided   |
 | /v1/chat/rooms                        | GET          |                                | returns a list of chat rooms                     |
 | /v1/api/chat/rooms/:id/messages       | GET          |                                | Returns the latest 50 messages                   |
-| /v1/ws                                | GET          | none                           | websocket connection url                         |
+| /v1/ws                                | GET          | token                          | websocket connection url                         |
 ```
-## Migrations
+
+For the websocket the expected message entry like this:
+``````
+{
+    "type":1,
+    "chatmessage":"/stock=APPL.US",
+    "chatuser":"wesmota@gmail.com",
+    "chatroomId":1
+}
+``````
+### Migrations 
 
 Database migrations are managed by [Goose](https://github.com/pressly/goose). Migrations live in the root directory.
 
