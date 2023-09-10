@@ -7,6 +7,7 @@ import (
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
+	"github.com/wesmota/go-jobsity-chat-server/models"
 	"github.com/wesmota/go-jobsity-chat-server/websocket"
 )
 
@@ -16,17 +17,12 @@ type Broker struct {
 	Channel        *amqp.Channel
 }
 
-type MessageResponse struct {
-	RoomId  uint   `json:"RoomId"`
-	Message string `json:"Message"`
-}
-
 // Setup creates(or connects if not existing) the reciever and publisher queues
 func (b *Broker) Setup(ch *amqp.Channel) {
 	//based on https://www.rabbitmq.com/tutorials/tutorial-one-go.html
 
-	receiverQueue := "JOBSITY_RECEIVER"
-	publisherQueue := "JOBSITY_PUBLISHER"
+	receiverQueue := "JOBSITY_PUBLISHER"
+	publisherQueue := "JOBSITY_RECEIVER"
 
 	qR, err := ch.QueueDeclare(
 		receiverQueue, // name
@@ -98,19 +94,40 @@ func (b *Broker) Read(hub *websocket.Hub) {
 		return
 	}
 
-	receivedMsgs := make(chan MessageResponse)
-	go func() {
-		var msg MessageResponse
-		for d := range msgs {
-			err := json.Unmarshal(d.Body, &msg)
-			if err != nil {
-				log.Err(err).Msg("Failed to unmarshal message")
-				continue
-			}
-			log.Printf("Received a message: %s", d.Body)
-			receivedMsgs <- msg
-		}
-	}()
+	receivedMsgs := make(chan models.ChatMessage)
+	go toMsgResponse(msgs, receivedMsgs)
+	go processAndPublish(receivedMsgs, b, hub)
 	// keep it running
 	select {}
+}
+
+func toMsgResponse(entries <-chan amqp.Delivery, receivedMessages chan models.ChatMessage) {
+	log.Info().Msg("Converting messages")
+	var msgR models.ChatMessage
+	for d := range entries {
+		log.Info().Msgf("Received a message: %s", d.Body)
+		err := json.Unmarshal([]byte(d.Body), &msgR)
+		if err != nil {
+			log.Printf("Error on received request : %s ", err)
+			continue
+		}
+		log.Info().Msgf("Received a message: %+v", msgR)
+		receivedMessages <- msgR
+	}
+}
+
+func processAndPublish(msgs <-chan models.ChatMessage, b *Broker, hub *websocket.Hub) {
+	log.Info().Msg("Processing messages")
+	for m := range msgs {
+		log.Info().Msgf("Processing message %s for room: %d", m.ChatMessage, m.ChatRoomId)
+		// send message to publisher queue
+		chatMsg := models.ChatMessage{
+			Type:        1,
+			ChatMessage: m.ChatMessage,
+			ChatUser:    m.ChatUser,
+			ChatRoomId:  m.ChatRoomId,
+		}
+		hub.Broadcast <- chatMsg
+		log.Info().Msg("Message sent to publisher queue")
+	}
 }

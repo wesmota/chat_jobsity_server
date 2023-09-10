@@ -21,12 +21,11 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
+	log.Info().Interface("user", user).Msg("SignUp")
 	login, err := h.AuthService.SignUp(context.Background(), user)
 	if err != nil {
 		log.Info().Msgf("Error signing up: %v", err)
-		ErrResponse(ErrInRequestMarshaling, w)
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	json.NewEncoder(w).Encode(login)

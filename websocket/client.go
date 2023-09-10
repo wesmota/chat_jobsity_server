@@ -35,6 +35,10 @@ func NewClient(conn *websocket.Conn, user ChatUser, hub *Hub, chatService *useca
 }
 
 func (c *Client) Read(msgChan chan []byte) {
+	defer func() {
+		c.Hub.Unregister <- c
+		c.Connection.Close()
+	}()
 	for {
 		messageType, p, err := c.Connection.ReadMessage()
 		if err != nil {
@@ -50,13 +54,12 @@ func (c *Client) Read(msgChan chan []byte) {
 		chatMsg.ChatUser = c.ChatUser.Email
 		chatMsg.Type = messageType
 		c.Hub.Broadcast <- chatMsg
-		log.Info().Interface("chatMsg", chatMsg).Msg("Read")
+		log.Info().Interface("chatMsg", chatMsg).Msg("Message received")
 
 		if strings.Index(chatMsg.ChatMessage, "/stock=") == 0 {
 			log.Info().Msg("Stock command detected")
 			msgChan <- p
 		} else {
-			msgChan <- p
 			go c.ChatRoomService.CreateChatMessage(context.Background(), chatMsg)
 		}
 

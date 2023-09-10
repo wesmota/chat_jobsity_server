@@ -10,6 +10,7 @@ RMQ_USERNAME = guest
 RMQ_PASSWORD = guest
 RMQ_PORT = 5672
 LOCAL_RMQ_ENV = RMQ_HOST=${RMQ_HOST} RMQ_USERNAME=${RMQ_USERNAME} RMQ_PASSWORD=${RMQ_PASSWORD} RMQ_PORT=${RMQ_PORT}
+LOCAL_JWT = JWT_TTL=${JWT_TTL} JWT_SECRET=${JWT_SECRET} JWT_ISSUER=${JWT_ISSUER}
 
 
 db-create:
@@ -36,5 +37,7 @@ db-migrate:
 	goose postgres "user=root password=password dbname=${DBNAME} sslmode=disable" up
 	pg_dump postgres://root:password@localhost:5432/${DBNAME} --schema-only --no-owner --file db/schema.sql
 run: db-reset
-	export ${LOCAL_RMQ_ENV} && go run main.go
+	export ${LOCAL_RMQ_ENV} && \
+	export ${LOCAL_JWT} && \
+	go run main.go
 
