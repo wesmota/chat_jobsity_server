@@ -52,3 +52,6 @@ There are a few more commands in the Makefile that you can use when working with
 
 ## Postman
 Postman + terminal logs were used to test the websocket connection and the server. The file used was exported and it's inside the `postman`` folder.
+
+## Initial UI
+A initial UI to test the service is under the `UI` folder. 

@@ -19,7 +19,12 @@
             <input type="text" id="message" name="message"><br><br>
             <input type="submit" value="Send message">
         </form>
+        <br>
+        <!-- text are for messages-->
+        <textarea class="messagearea" id="chatmessages" readonly name="chatmessages" rows="4" cols="50"
+            placeholder="messages here"></textarea>
 
+        <br>
         
         <div style="border: 3px solid black;margin-top: 30px;">
             <form id="login-form">
@@ -33,9 +38,6 @@
 
     </div>
 
-    <!--
-        Javascript that is used to Connect to Websocket and Handle New messages
-    -->
     <script type="text/javascript">
         function login() {
             console.log("login");
@@ -74,38 +76,42 @@
             if (window["WebSocket"]) {
                 console.log("supports websockets");
                 console.log("jwt", data.token);
-                conn = new WebSocket("ws://" + document.location.host + "/v1/ws?jwt=" + data.token);
+                let socket = new WebSocket("ws://" + document.location.host + "/v1/ws?jwt=" + data.token);
 
-                conn.onopen = function (evt) {
+                socket.onopen = function (evt) {
                     document.getElementById("connection-header").innerHTML = "Connected to Websocket: true";
+                    let msg = {
+                        "type":1,
+                        "chatmessage":"hello from webclient",
+                        "chatuser":"wesmota@gmail.com",
+                        "chatroomId":1
+                    }
+                    socket.send(JSON.stringify(msg));
                 }
 
-                conn.onclose = function (evt) {
+                socket.onclose = function (evt) {
                     document.getElementById("connection-header").innerHTML = "Connected to Websocket: false";
                 }
                 
-                // Add a listener to the onmessage event
-                conn.onmessage = function (evt) {
-                    console.log(evt);
-                    // parse websocket message as JSON
-                    const eventData = JSON.parse(evt.data);
-                    // Assign JSON data to new Event Object
-                    const event = Object.assign(new Event, eventData);
-                    // Let router manage message
-                    //routeEvent(event);
-                }
+                socket.onmessage = function(event) {
+                    //alert(`[message] Data received from server: ${event.data}`);
+                    console.log("message", event.data);
+                    let msg = JSON.parse(event.data);
+                    // format message
+                    const formattedMsg = `${msg.chatuser} : ${msg.chatmessage}`;
+                    // Append Message
+                    textarea = document.getElementById("chatmessages");
+                    textarea.innerHTML = textarea.innerHTML + "\n" + formattedMsg;
+                    textarea.scrollTop = textarea.scrollHeight;
+                };
                 
 
             } else {
                 alert("Not supporting websockets");
             }
         }
-        /**
-         * Once the website loads
-         * */
+
         window.onload = function () {
-            // Apply our listener functions to the submit event on both forms
-            // we do it this way to avoid redirects
             //document.getElementById("chatroom-selection").onsubmit = changeChatRoom;
             //document.getElementById("chatroom-message").onsubmit = sendMessage;
             document.getElementById("login-form").onsubmit = login;
