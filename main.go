@@ -26,6 +26,7 @@ func main() {
 	sb.HandleFunc("/auth/signup", h.SignUp).Methods("POST")
 	sb.HandleFunc("/auth/login", h.Login).Methods("POST")
 	sb.HandleFunc("/ws", h.ServeWS)
+	r.Handle("/", http.FileServer(http.Dir("./UI")))
 
 	sbChat := r.PathPrefix("/v1/chat").Subrouter()
 	sbChat.Use(middlewares.Authenticate)

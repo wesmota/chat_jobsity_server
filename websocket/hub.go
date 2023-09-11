@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/wesmota/go-jobsity-chat-server/models"
 )
@@ -35,18 +35,18 @@ func (h *Hub) Run() {
 
 		case client := <-h.Register:
 			h.Clients[client] = true
-			log.Println("info:", "Client registered: ", client.ChatUser.Email)
+			log.Info().Msgf("Client registered: ", client.ChatUser.Email)
 
 		case client := <-h.Unregister:
 			if _, ok := h.Clients[client]; ok {
 				delete(h.Clients, client)
-				log.Println("info:", "Client unregistered: ", client.ChatUser.Email)
+				log.Info().Msgf("Client unregistered: ", client.ChatUser.Email)
 			}
 
 		case msg := <-h.Broadcast:
 			for c := range h.Clients {
 				err := c.Connection.WriteJSON(msg)
-				log.Println("info:", "Broadcasting message: ", msg)
+				log.Info().Msgf("Broadcasting message: ", msg)
 				if err != nil {
 					panic(err)
 				}

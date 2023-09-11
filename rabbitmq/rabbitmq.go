@@ -90,7 +90,7 @@ func (b *Broker) Read(hub *websocket.Hub) {
 		nil,                  // args
 	)
 	if err != nil {
-		log.Printf("ReadMessages Error occured %s\n", err)
+		log.Err(err).Msg("ReadMessages Error occured")
 		return
 	}
 
@@ -108,7 +108,7 @@ func toMsgResponse(entries <-chan amqp.Delivery, receivedMessages chan models.Ch
 		log.Info().Msgf("Received a message: %s", d.Body)
 		err := json.Unmarshal([]byte(d.Body), &msgR)
 		if err != nil {
-			log.Printf("Error on received request : %s ", err)
+			log.Err(err).Msg("Error on unmarshalling message")
 			continue
 		}
 		log.Info().Msgf("Received a message: %+v", msgR)
