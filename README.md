@@ -55,3 +55,6 @@ Postman + terminal logs were used to test the websocket connection and the serve
 
 ## Initial UI
 A initial UI to test the service is under the `UI` folder. 
+
+## Mocks
+The repo uses Mockery for mocks.

@@ -35,18 +35,18 @@ func (h *Hub) Run() {
 
 		case client := <-h.Register:
 			h.Clients[client] = true
-			log.Info().Msgf("Client registered: ", client.ChatUser.Email)
+			log.Info().Msgf("Client registered: %s", client.ChatUser.Email)
 
 		case client := <-h.Unregister:
 			if _, ok := h.Clients[client]; ok {
 				delete(h.Clients, client)
-				log.Info().Msgf("Client unregistered: ", client.ChatUser.Email)
+				log.Info().Msgf("Client unregistered: %s", client.ChatUser.Email)
 			}
 
 		case msg := <-h.Broadcast:
 			for c := range h.Clients {
 				err := c.Connection.WriteJSON(msg)
-				log.Info().Msgf("Broadcasting message: ", msg)
+				log.Info().Msgf("Broadcasting message: %+v", msg)
 				if err != nil {
 					panic(err)
 				}

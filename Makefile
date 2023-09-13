@@ -42,3 +42,7 @@ run: db-reset
 	go mod download && \
 	go run main.go
 
+tests:
+	go test ./... -coverprofile=coverage.out
+	go tool cover -html=coverage.out
+

@@ -64,7 +64,7 @@ func (s *AuthService) SignUp(ctx context.Context, user models.User) (models.Logi
 	if err == nil && userDB.ID != 0 {
 		return models.Login{}, errors.New("email already exists")
 	}
-
+	
 	jwtTTL, err := strconv.Atoi(os.Getenv("JWT_TTL"))
 	if err != nil {
 		return models.Login{}, err
