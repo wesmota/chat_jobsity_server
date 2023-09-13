@@ -1,3 +1,3 @@
 
-INSERT INTO CHAT_ROOMS (NAME) VALUES ('General');
-INSERT INTO CHAT_ROOMS (NAME) VALUES ('Random');
+INSERT INTO public.chat_rooms (NAME) VALUES ('General');
+INSERT INTO public.chat_rooms (NAME) VALUES ('Random');
