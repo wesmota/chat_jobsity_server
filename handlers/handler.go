@@ -55,7 +55,7 @@ func NewDefaultHandler(ctx context.Context) *Handler {
 	rmqPassword := os.Getenv("RMQ_PASSWORD")
 	rmqPort := os.Getenv("RMQ_PORT")
 	dsn := "amqp://" + rmqUserName + ":" + rmqPassword + "@" + rmqHost + ":" + rmqPort + "/"
-
+	log.Info().Msgf("Connecting to RabbitMQ: %s", dsn)
 	conn, err := amqp.Dial(dsn)
 	if err != nil {
 		panic(err)

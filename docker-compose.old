@@ -1,0 +1,41 @@
+version: '3'
+services:
+  my_service:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      networks:
+        - cicd
+        - rabbitmq_go_net
+  postgres:
+    image: postgres:11.10
+    volumes:
+      - ./docker-pg-init:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: jobsity
+    command: postgres -c intervalstyle=iso_8601 -c max_connections=250
+    expose: 
+      - "5432"
+    networks:
+      - cicd
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+        - rabbitmq_go_net
+
+networks:
+  rabbitmq_go_net:
+    driver: bridge
+  cicd:
+    name: cicd
